@@ -1,6 +1,7 @@
 package br.com.app.butler.entity.service;
 
 import br.com.app.butler.entity.dto.request.UserRequest;
+import br.com.app.butler.entity.dto.response.PlanResponse;
 import br.com.app.butler.entity.dto.response.UserResponse;
 
 
@@ -19,5 +20,7 @@ public interface UserService {
     UserResponse updateUser(Long userId, UserRequest userRequest);
 
     void deleteUser(Long userId);
+
+    PlanResponse getUserPlan(Long userId);
 
 }

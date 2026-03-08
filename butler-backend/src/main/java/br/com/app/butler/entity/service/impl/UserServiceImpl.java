@@ -2,6 +2,7 @@ package br.com.app.butler.entity.service.impl;
 
 import br.com.app.butler.config.JwtTokenConfig;
 import br.com.app.butler.entity.dto.request.UserRequest;
+import br.com.app.butler.entity.dto.response.PlanResponse;
 import br.com.app.butler.entity.dto.response.UserResponse;
 import br.com.app.butler.entity.dto.utils.LoginUser;
 import br.com.app.butler.entity.dto.utils.RecoveryJwtToken;
@@ -11,6 +12,7 @@ import br.com.app.butler.entity.exception.EmailAlreadyInUseException;
 import br.com.app.butler.entity.exception.PlanNotFoundException;
 import br.com.app.butler.entity.exception.UserCannotBeNullException;
 import br.com.app.butler.entity.exception.UserNotFoundException;
+import br.com.app.butler.entity.mapper.PlanMapper;
 import br.com.app.butler.entity.mapper.UserMapper;
 import br.com.app.butler.entity.model.PlanModel;
 import br.com.app.butler.entity.model.UserDetailsImpl;
@@ -37,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final JwtTokenConfig jwtTokenConfig;
     private final AuthenticationManager authenticationManager;
+    private final PlanMapper planMapper;
 
     public RecoveryJwtToken authenticateUser(LoginUser loginUser) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
@@ -138,6 +141,19 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found."));
 
         userRepository.delete(user);
+    }
+
+    public PlanResponse getUserPlan(Long userId) {
+        Integer planId = userRepository.getPlanIdByUserId(userId);
+
+        if (planId == null) {
+            throw new PlanNotFoundException("Plan id not found.");
+        }
+
+        PlanModel planInfo = planRepository.findById(planId.longValue())
+                .orElseThrow(() -> new PlanNotFoundException("Plan not found."));
+
+        return planMapper.planResponse(planInfo);
     }
 
 }

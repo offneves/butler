@@ -1,6 +1,7 @@
 package br.com.app.butler.entity.controller;
 
 import br.com.app.butler.entity.dto.request.UserRequest;
+import br.com.app.butler.entity.dto.response.PlanResponse;
 import br.com.app.butler.entity.dto.response.UserResponse;
 import br.com.app.butler.entity.service.UserService;
 import jakarta.validation.Valid;
@@ -54,6 +55,12 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/{userId}/plan")
+    public ResponseEntity<PlanResponse> getUserPlan(@PathVariable Long userId) {
+        PlanResponse planResponse = userService.getUserPlan(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(planResponse);
     }
 
 }

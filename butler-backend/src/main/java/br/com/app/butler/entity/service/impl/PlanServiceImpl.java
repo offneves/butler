@@ -9,6 +9,7 @@ import br.com.app.butler.entity.exception.PlanRequestMismatchException;
 import br.com.app.butler.entity.mapper.PlanMapper;
 import br.com.app.butler.entity.model.PlanModel;
 import br.com.app.butler.entity.repository.PlanRepository;
+import br.com.app.butler.entity.repository.UserRepository;
 import br.com.app.butler.entity.service.PlanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class PlanServiceImpl implements PlanService {
 
     private final PlanRepository planRepository;
     private final PlanMapper planMapper;
+    private final UserRepository userRepository;
 
     public List<PlanResponse> getAllPlans() {
         return planRepository.findAll()

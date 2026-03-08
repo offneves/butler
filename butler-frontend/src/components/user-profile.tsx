@@ -5,31 +5,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getUserProfile, type UserProfileData } from "@/services/user";
+import { getUserProfile, getUserPlan, type UserProfileData, type PlanData } from "@/services/user";
 import { CalendarDays } from "lucide-react";
 
 export function UserProfile() {
     const [userData, setUserData] = useState<UserProfileData | null>(null);
+    const [userPlan, setUserPlan] = useState<PlanData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchUser() {
-            const data = await getUserProfile();
-            if (data) {
-                setUserData(data);
+        async function fetchData() {
+            try {
+                const [user, plan] = await Promise.all([
+                    getUserProfile(),
+                    getUserPlan()
+                ]);
+
+                if (user) setUserData(user);
+                if (plan) setUserPlan(plan);
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }
-        fetchUser();
+        fetchData();
     }, []);
 
-    // Mock plan info for now, as user specified "primeiro vamos recuperar username, email, e crated_at"
-    const userPlan = {
-        name: "Pro",
-        description: "Plano avançado com acesso a agentes avançados e integrações premium.",
-        agentsCount: 12,
-        maxAgents: 20
-    };
+    // Por enquanto, não temos dado real de agents ativos do backend
+    const agentsCount = 0;
 
     if (isLoading) {
         return (
@@ -43,7 +45,12 @@ export function UserProfile() {
         );
     }
 
-    const agentsPercentage = (userPlan.agentsCount / userPlan.maxAgents) * 100;
+    const maxAgents = userPlan?.maxAgents || 1;
+    const planName = userPlan?.name || "Desconhecido";
+    const planDescription = userPlan?.description || "Plano atual do usuário";
+    const planActive = userPlan?.active ?? false;
+    
+    const agentsPercentage = (agentsCount / maxAgents) * 100;
 
     // Use fetched data or fallbacks
     const username = userData?.username || "Usuário Butler";
@@ -97,11 +104,13 @@ export function UserProfile() {
                         <div className="flex justify-between items-start">
                             <div className="space-y-1">
                                 <CardTitle className="text-2xl flex items-center gap-2">
-                                    Plano {userPlan.name}
-                                    <Badge className="bg-primary/20 text-primary hover:bg-primary/30 border-none ml-2">Atual</Badge>
+                                    Plano {planName}
+                                    {planActive && (
+                                        <Badge className="bg-primary/20 text-primary hover:bg-primary/30 border-none ml-2">Ativo</Badge>
+                                    )}
                                 </CardTitle>
                                 <CardDescription className="text-base mt-2">
-                                    {userPlan.description}
+                                    {planDescription}
                                 </CardDescription>
                             </div>
                         </div>
@@ -112,12 +121,12 @@ export function UserProfile() {
                             <div className="flex justify-between items-center text-sm">
                                 <span className="font-medium text-foreground">Utilização de Agentes</span>
                                 <span className="text-muted-foreground">
-                                    <strong className="text-foreground">{userPlan.agentsCount}</strong> de {userPlan.maxAgents} agentes
+                                    <strong className="text-foreground">{agentsCount}</strong> de {userPlan?.maxAgents || 0} agentes
                                 </span>
                             </div>
                             <Progress value={agentsPercentage} className="h-3 rounded-full" />
                             <p className="text-xs text-muted-foreground">
-                                Você utilizou {Math.round(agentsPercentage)}% do seu limite de agentes do plano {userPlan.name}.
+                                Você utilizou {Math.round(agentsPercentage)}% do seu limite de agentes do plano {planName}.
                             </p>
                         </div>
                     </CardContent>
