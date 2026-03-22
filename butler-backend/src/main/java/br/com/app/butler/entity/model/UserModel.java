@@ -13,9 +13,9 @@ import java.util.Collection;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "tab_user")
 public class UserModel {
 

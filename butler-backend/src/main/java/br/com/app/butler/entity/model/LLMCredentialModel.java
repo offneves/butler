@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "tab_llm_credential")
 public class LLMCredentialModel {
 

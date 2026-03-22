@@ -9,9 +9,9 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "tab_plan")
 public class PlanModel {
 

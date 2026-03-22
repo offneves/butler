@@ -144,14 +144,13 @@ public class UserServiceImpl implements UserService {
     }
 
     public PlanResponse getUserPlan(Long userId) {
-        Integer planId = userRepository.getPlanIdByUserId(userId);
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
 
-        if (planId == null) {
-            throw new PlanNotFoundException("Plan id not found.");
+        PlanModel planInfo = user.getPlan();
+        if (planInfo == null) {
+            throw new PlanNotFoundException("Plan not found for this user.");
         }
-
-        PlanModel planInfo = planRepository.findById(planId.longValue())
-                .orElseThrow(() -> new PlanNotFoundException("Plan not found."));
 
         return planMapper.planResponse(planInfo);
     }

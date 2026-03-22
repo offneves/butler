@@ -21,18 +21,36 @@ import {
     HelpCircle,
     MoreVertical,
     CirclePlus,
-    Folder,
     SquareArrowRightExit,
+    PocketKnife,
+    Bot,
+    FileText,
+    Brain,
+    Database
 } from "lucide-react";
 import { UserProfile } from "@/components/user-profile.tsx";
 import { getUserProfile, type UserProfileData } from "@/services/user";
+import { AgentList } from "@/components/agent/agent-list";
+import { AgentForm } from "@/components/agent/agent-form";
+import { DatabaseList } from "@/components/database-list";
+import { DatabaseForm } from "@/components/database-form";
+import { ContextList } from "@/components/context-list";
+import { ContextForm } from "@/components/context-form";
+import { PRDList } from "@/components/prd-list";
+import { PRDForm } from "@/components/prd-form";
+import { ToolList } from "@/components/tool-list";
+import { ToolForm } from "@/components/tool-form";
 
 const homeItems = [
     { icon: LayoutDashboard, label: "Dashboard" }
 ];
 
 const agentItems = [
-    { icon: Folder, label: "Documentos" }
+    { icon: Bot, label: "Agentes" },
+    { icon: Database, label: "Bancos de Dados" },
+    { icon: Brain, label: "Contextos" },
+    { icon: FileText, label: "PRD/Docs" },
+    { icon: PocketKnife, label: "Tools" }
 ];
 
 const profileItems = [
@@ -44,6 +62,7 @@ const profileItems = [
 function Board() {
     const navigate = useNavigate();
     const [activeView, setActiveView] = useState("board");
+    const [isCreating, setIsCreating] = useState(false);
     const [userData, setUserData] = useState<UserProfileData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -78,7 +97,7 @@ function Board() {
 
                     <SidebarContent className="flex-1 overflow-y-auto py-2">
                         <SidebarGroup>
-                            <SidebarGroupLabel className="px-4 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            <SidebarGroupLabel className="px-4 py-1 text-xs font-medium text-sm text-muted-foreground uppercase tracking-wider">
                                 Home
                             </SidebarGroupLabel>
                             <SidebarMenu>
@@ -97,14 +116,17 @@ function Board() {
                         </SidebarGroup>
 
                         <SidebarGroup className="mt-4">
-                            <SidebarGroupLabel className="px-4 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                Agentes
+                            <SidebarGroupLabel className="px-4 py-1 text-xs font-medium text-sm text-muted-foreground uppercase tracking-wider">
+                                AI Studio
                             </SidebarGroupLabel>
                             <SidebarMenu>
                                 {agentItems.map(({ icon: Icon, label }) => (
                                     <SidebarMenuItem key={label}>
                                         <SidebarMenuButton
-                                            onClick={() => setActiveView("board")}
+                                            onClick={() => {
+                                                setActiveView(label);
+                                                setIsCreating(false);
+                                            }}
                                             className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md w-full transition-colors"
                                         >
                                             <Icon className="w-4 h-4 shrink-0" />
@@ -172,17 +194,51 @@ function Board() {
                         <div className="flex items-center gap-4">
                             <SidebarTrigger className="-ml-1" />
                         </div>
-                        <Button>
+                        <Button
+                            onClick={() => setIsCreating(true)}
+                            className={isCreating ? "hidden" : ""}
+                        >
                             <CirclePlus data-icon="inline-start" />
-                            Novo agente
+                            {activeView === "Bancos de Dados" ? "Nova conexão" :
+                                activeView === "Contextos" ? "Novo contexto" :
+                                    activeView === "PRD/Docs" ? "Novo PRD" :
+                                        activeView === "Tools" ? "Nova ferramenta" :
+                                            "Novo agente"}
                         </Button>
                     </header>
                     <div className="p-6 flex-1 overflow-auto bg-muted/20">
-                        {activeView === "profile" ? (
+                        {isCreating ? (
+                            activeView === "Agentes" ? (
+                                <AgentForm onBack={() => setIsCreating(false)} />
+                            ) : activeView === "Bancos de Dados" ? (
+                                <DatabaseForm onBack={() => setIsCreating(false)} />
+                            ) : activeView === "Contextos" ? (
+                                <ContextForm onBack={() => setIsCreating(false)} />
+                            ) : activeView === "PRD/Docs" ? (
+                                <PRDForm onBack={() => setIsCreating(false)} />
+                            ) : activeView === "Tools" ? (
+                                <ToolForm onBack={() => setIsCreating(false)} />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4">
+                                    <p>Formulário de criação para {activeView} em construção.</p>
+                                    <Button variant="outline" onClick={() => setIsCreating(false)}>Voltar</Button>
+                                </div>
+                            )
+                        ) : activeView === "profile" ? (
                             <UserProfile />
+                        ) : activeView === "Agentes" ? (
+                            <AgentList onCreateClick={() => setIsCreating(true)} />
+                        ) : activeView === "Bancos de Dados" ? (
+                            <DatabaseList onCreateClick={() => setIsCreating(true)} />
+                        ) : activeView === "Contextos" ? (
+                            <ContextList onCreateClick={() => setIsCreating(true)} />
+                        ) : activeView === "PRD/Docs" ? (
+                            <PRDList onCreateClick={() => setIsCreating(true)} />
+                        ) : activeView === "Tools" ? (
+                            <ToolList onCreateClick={() => setIsCreating(true)} />
                         ) : (
                             <div className="flex items-center justify-center h-full text-muted-foreground">
-                                Conteúdo do board
+                                Conteúdo do board ({activeView})
                             </div>
                         )}
                     </div>
